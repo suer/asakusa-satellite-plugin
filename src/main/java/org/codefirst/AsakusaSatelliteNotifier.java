@@ -5,10 +5,12 @@ import hudson.Launcher;
 import hudson.model.BuildListener;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
+import hudson.model.User;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Notifier;
 import hudson.tasks.Publisher;
+import hudson.tasks.Mailer;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -61,12 +63,9 @@ public class AsakusaSatelliteNotifier extends Notifier {
     @Override
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
         String message = extractMessage(build);
-
         String apiUrl = (baseUrl + (baseUrl.endsWith("/") ? "" : "/") + "api/v1/message.json");
         String postData = "room_id=" + roomNumber + "&message=" + message + "&api_key=" + appkey;
 
-        System.out.println(apiUrl);
-        System.out.println(postData);
         URL url = new URL(apiUrl);
         URLConnection connection = url.openConnection();
         connection.setDoOutput(true);
@@ -83,20 +82,23 @@ public class AsakusaSatelliteNotifier extends Notifier {
             // do nothing
         }
         reader.close();
+        is.close();
         os.close();
         return true;
     }
 
     String extractMessage(AbstractBuild<?, ?> build) {
-        String message = "project: " + build.getProject().getName() + "\n";
-        message += "build: " + build.getNumber() + "\n";
-        message += "result: " + build.getResult().toString();
-        return message;
+        StringBuilder userBuilder = new StringBuilder();
+        for (User user : build.getCulprits()) {
+            userBuilder.append(user.getFullName() + " ");
+        }
+        return String.format("%s%s:%s %d - %s", userBuilder, build.getResult(), build.getProject().getName(), build.number, Mailer.descriptor().getUrl() + build.getUrl());
     }
 
     @Override
     public DescriptorImpl getDescriptor() {
-        return (DescriptorImpl) super.getDescriptor();
+        super.getDescriptor();
+        return new DescriptorImpl(); // super.getDescriptor();
     }
 
     @Extension

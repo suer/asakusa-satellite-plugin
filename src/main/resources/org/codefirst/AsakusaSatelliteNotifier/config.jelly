@@ -1,0 +1,23 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+  <f:section title="AsakusaSatellite">
+    <f:entry title="appkey"
+      description="Specify appkey of AsakusaSatellite."
+      field="appkey"
+      help="/plugin/simple-theme-plugin/help-globalConfig.html">
+      <f:textbox />
+    </f:entry>
+    <f:entry title="baseUrl"
+      description="Specify Base URL of AsakusaSatellite"
+      field="baseUrl"
+      help="/plugin/simple-theme-plugin/help-globalConfig.html">
+      <f:textbox />
+    </f:entry>
+   <f:entry title="roomNumber"
+      description="Specify Room Number"
+      field="roomNumber"
+      help="/plugin/simple-theme-plugin/help-globalConfig.html">
+      <f:textbox />
+    </f:entry>
+    
+  </f:section>
+</j:jelly>

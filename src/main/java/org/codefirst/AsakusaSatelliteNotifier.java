@@ -17,7 +17,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.PrintStream;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -27,12 +28,14 @@ public class AsakusaSatelliteNotifier extends Notifier {
     private String appkey;
     private String baseUrl;
     private String roomNumber;
+    private String message;
 
     @DataBoundConstructor
-    public AsakusaSatelliteNotifier(String appkey, String baseUrl, String roomNumber) {
+    public AsakusaSatelliteNotifier(String appkey, String baseUrl, String roomNumber, String message) {
         this.appkey = appkey;
         this.baseUrl = baseUrl;
         this.roomNumber = roomNumber;
+        this.message = message;
     }
 
     /**
@@ -56,13 +59,20 @@ public class AsakusaSatelliteNotifier extends Notifier {
         return roomNumber;
     }
 
+    /**
+     * @return the message
+     */
+    public String getMessage() {
+        return message;
+    }
+
     public BuildStepMonitor getRequiredMonitorService() {
         return BuildStepMonitor.NONE;
     }
 
     @Override
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
-        String message = extractMessage(build);
+        String message = new String(generatedMessage(build).getBytes(), "UTF-16");
         String apiUrl = (baseUrl + (baseUrl.endsWith("/") ? "" : "/") + "api/v1/message.json");
         String postData = "room_id=" + roomNumber + "&message=" + message + "&api_key=" + appkey;
 
@@ -71,8 +81,8 @@ public class AsakusaSatelliteNotifier extends Notifier {
         connection.setDoOutput(true);
 
         OutputStream os = connection.getOutputStream();
-        PrintStream ps = new PrintStream(os);
-        ps.print(postData);
+        OutputStreamWriter ps = new OutputStreamWriter(os, "UTF-8");
+        ps.write(postData);
         ps.close();
 
         InputStream is = connection.getInputStream();
@@ -87,12 +97,22 @@ public class AsakusaSatelliteNotifier extends Notifier {
         return true;
     }
 
-    String extractMessage(AbstractBuild<?, ?> build) {
+    String generatedMessage(AbstractBuild<?, ?> build) {
         StringBuilder userBuilder = new StringBuilder();
         for (User user : build.getCulprits()) {
             userBuilder.append(user.getFullName() + " ");
         }
-        return String.format("%s%s:%s %d - %s", userBuilder, build.getResult(), build.getProject().getName(), build.number, Mailer.descriptor().getUrl() + build.getUrl());
+        String replacedMessage = message.replace("${user}", userBuilder.toString());
+        replacedMessage = replacedMessage.replace("${result}", build.getResult().toString());
+        replacedMessage = replacedMessage.replace("${project}", build.getProject().getName());
+        replacedMessage = replacedMessage.replace("${number}", String.valueOf(build.number));
+        replacedMessage = replacedMessage.replace("${url}", Mailer.descriptor().getUrl() + build.getUrl());
+
+        try {
+            return new String(replacedMessage.getBytes(), "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            return replacedMessage;
+        }
     }
 
     @Override

@@ -12,9 +12,15 @@
       help="/plugin/simple-theme-plugin/help-globalConfig.html">
       <f:textbox />
     </f:entry>
-   <f:entry title="roomNumber"
+    <f:entry title="roomNumber"
       description="Specify Room Number"
       field="roomNumber"
+      help="/plugin/simple-theme-plugin/help-globalConfig.html">
+      <f:textbox />
+    </f:entry>
+    <f:entry title="message"
+      description="Specify Room Message"
+      field="message"
       help="/plugin/simple-theme-plugin/help-globalConfig.html">
       <f:textbox />
     </f:entry>

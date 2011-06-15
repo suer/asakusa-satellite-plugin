@@ -18,10 +18,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLConnection;
 
+import org.apache.commons.io.IOUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 public class AsakusaSatelliteNotifier extends Notifier {
@@ -72,32 +72,48 @@ public class AsakusaSatelliteNotifier extends Notifier {
 
     @Override
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
-        String message = new String(generatedMessage(build).getBytes(), "UTF-16");
+        String message = generatedMessage(build);
         String apiUrl = (baseUrl + (baseUrl.endsWith("/") ? "" : "/") + "api/v1/message.json");
         String postData = "room_id=" + roomNumber + "&message=" + message + "&api_key=" + appkey;
 
         URL url = new URL(apiUrl);
-        URLConnection connection = url.openConnection();
-        connection.setDoOutput(true);
+        URLConnection connection = null;
+        OutputStream os = null;
+        OutputStreamWriter osw = null;
+        InputStream is = null;
+        InputStreamReader isr = null;
+        BufferedReader reader = null;
+        try {
+            connection = url.openConnection();
+            connection.setDoOutput(true);
 
-        OutputStream os = connection.getOutputStream();
-        OutputStreamWriter ps = new OutputStreamWriter(os, "UTF-8");
-        ps.write(postData);
-        ps.close();
+            os = connection.getOutputStream();
+            osw = new OutputStreamWriter(os, "UTF-8");
+            osw.write(postData);
+            IOUtils.closeQuietly(osw);
+            osw = null;
+            IOUtils.closeQuietly(os);
+            os = null;
 
-        InputStream is = connection.getInputStream();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-        String s;
-        while ((s = reader.readLine()) != null) {
-            // do nothing
+            is = connection.getInputStream();
+            isr = new InputStreamReader(is);
+            reader = new BufferedReader(isr);
+            String s;
+            while ((s = reader.readLine()) != null) {
+                // do nothing
+            }
+        } finally {
+            IOUtils.closeQuietly(osw);
+            IOUtils.closeQuietly(os);
+            IOUtils.closeQuietly(reader);
+            IOUtils.closeQuietly(isr);
+            IOUtils.closeQuietly(is);
+            connection = null;
         }
-        reader.close();
-        is.close();
-        os.close();
         return true;
     }
 
-    String generatedMessage(AbstractBuild<?, ?> build) {
+    private String generatedMessage(AbstractBuild<?, ?> build) {
         StringBuilder userBuilder = new StringBuilder();
         for (User user : build.getCulprits()) {
             userBuilder.append(user.getFullName() + " ");
@@ -108,21 +124,17 @@ public class AsakusaSatelliteNotifier extends Notifier {
         replacedMessage = replacedMessage.replace("${number}", String.valueOf(build.number));
         replacedMessage = replacedMessage.replace("${url}", Mailer.descriptor().getUrl() + build.getUrl());
 
-        try {
-            return new String(replacedMessage.getBytes(), "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            return replacedMessage;
-        }
-    }
+        return replacedMessage;
 
-    @Override
-    public DescriptorImpl getDescriptor() {
-        super.getDescriptor();
-        return new DescriptorImpl(); // super.getDescriptor();
     }
 
     @Extension
     public static final class DescriptorImpl extends BuildStepDescriptor<Publisher> {
+
+        public DescriptorImpl() {
+            load();
+        }
+
         @Override
         public boolean isApplicable(Class<? extends AbstractProject> project) {
             return true;

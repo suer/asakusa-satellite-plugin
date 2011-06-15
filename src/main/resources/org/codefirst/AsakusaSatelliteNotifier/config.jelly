@@ -4,7 +4,7 @@
       description="Specify appkey of AsakusaSatellite."
       field="appkey"
       help="/plugin/simple-theme-plugin/help-globalConfig.html">
-      <f:textbox />
+      <f:textbox /> 
     </f:entry>
     <f:entry title="baseUrl"
       description="Specify Base URL of AsakusaSatellite"
@@ -19,7 +19,7 @@
       <f:textbox />
     </f:entry>
     <f:entry title="message"
-      description="Specify Room Message"
+      description="Message Template"
       field="message"
       help="/plugin/simple-theme-plugin/help-globalConfig.html">
       <f:textbox />

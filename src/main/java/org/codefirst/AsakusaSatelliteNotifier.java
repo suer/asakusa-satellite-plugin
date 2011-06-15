@@ -136,6 +136,11 @@ public class AsakusaSatelliteNotifier extends Notifier {
         }
 
         @Override
+        public String getHelpFile() {
+            return "/plugin/asakusa-satellite-plugin/AsakusaSatelliteNotifier.html";
+        }
+
+        @Override
         public boolean isApplicable(Class<? extends AbstractProject> project) {
             return true;
         }

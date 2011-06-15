@@ -2,26 +2,22 @@
   <f:section title="AsakusaSatellite">
     <f:entry title="appkey"
       description="Specify appkey of AsakusaSatellite."
-      field="appkey"
-      help="/plugin/simple-theme-plugin/help-globalConfig.html">
+      field="appkey">
       <f:textbox /> 
     </f:entry>
     <f:entry title="baseUrl"
       description="Specify Base URL of AsakusaSatellite"
-      field="baseUrl"
-      help="/plugin/simple-theme-plugin/help-globalConfig.html">
+      field="baseUrl">
       <f:textbox />
     </f:entry>
     <f:entry title="roomNumber"
       description="Specify Room Number"
-      field="roomNumber"
-      help="/plugin/simple-theme-plugin/help-globalConfig.html">
+      field="roomNumber">
       <f:textbox />
     </f:entry>
     <f:entry title="message"
       description="Message Template"
-      field="message"
-      help="/plugin/simple-theme-plugin/help-globalConfig.html">
+      field="message">
       <f:textbox />
     </f:entry>
     

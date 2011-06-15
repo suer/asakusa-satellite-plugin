@@ -20,6 +20,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLEncoder;
 
 import org.apache.commons.io.IOUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -74,7 +75,7 @@ public class AsakusaSatelliteNotifier extends Notifier {
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
         String message = generatedMessage(build);
         String apiUrl = (baseUrl + (baseUrl.endsWith("/") ? "" : "/") + "api/v1/message.json");
-        String postData = "room_id=" + roomNumber + "&message=" + message + "&api_key=" + appkey;
+        String postData = "room_id=" + roomNumber + "&message=" + URLEncoder.encode(message, "UTF-8") + "&api_key=" + appkey;
 
         URL url = new URL(apiUrl);
         URLConnection connection = null;

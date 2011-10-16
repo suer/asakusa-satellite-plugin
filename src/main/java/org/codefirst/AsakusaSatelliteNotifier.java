@@ -25,6 +25,7 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Logger;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 public class AsakusaSatelliteNotifier extends Notifier {
@@ -33,13 +34,14 @@ public class AsakusaSatelliteNotifier extends Notifier {
     private String roomNumber;
     private String message;
 
+    private static final Logger LOG = Logger.getLogger(AsakusaSatelliteNotifier.class);
+
     @DataBoundConstructor
     public AsakusaSatelliteNotifier(String appkey, String baseUrl, String roomNumber, String message) {
         this.appkey = appkey;
         this.baseUrl = baseUrl;
         this.roomNumber = roomNumber;
         this.message = message;
-        CookieHandler.setDefault(new CookieManager());
     }
 
     /**
@@ -106,6 +108,9 @@ public class AsakusaSatelliteNotifier extends Notifier {
             while ((s = reader.readLine()) != null) {
                 // do nothing
             }
+        } catch (IOException e) {
+            // ignore because notification failures make build failures!
+            LOG.error("[AsakusaSatellite] Failed to notification", e);
         } finally {
             IOUtils.closeQuietly(osw);
             IOUtils.closeQuietly(os);

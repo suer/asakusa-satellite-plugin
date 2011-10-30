@@ -11,6 +11,7 @@ import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Notifier;
 import hudson.tasks.Publisher;
 import hudson.tasks.Mailer;
+import hudson.scm.ChangeLogSet;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -127,11 +128,16 @@ public class AsakusaSatelliteNotifier extends Notifier {
         for (User user : build.getCulprits()) {
             userBuilder.append(user.getFullName() + " ");
         }
+        StringBuilder changeSetBuilder = new StringBuilder();
+        for(ChangeLogSet.Entry entry : build.getChangeSet()) {
+            changeSetBuilder.append(entry.getAuthor() + " : " + entry.getMsg() + "\n");
+        }
         String replacedMessage = message.replace("${user}", userBuilder.toString());
         replacedMessage = replacedMessage.replace("${result}", build.getResult().toString());
         replacedMessage = replacedMessage.replace("${project}", build.getProject().getName());
         replacedMessage = replacedMessage.replace("${number}", String.valueOf(build.number));
         replacedMessage = replacedMessage.replace("${url}", Mailer.descriptor().getUrl() + build.getUrl());
+        replacedMessage = replacedMessage.replace("${changeSet}", changeSetBuilder.toString());
 
         return replacedMessage;
 

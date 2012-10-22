@@ -8,9 +8,22 @@
 
   <groupId>org.codefirst.jenkins.asakusasatellite</groupId>
   <artifactId>asakusa-satellite-plugin</artifactId>
-  <version>0.1</version>
+  <version>0.1-SNAPSHOT</version>
   <packaging>hpi</packaging>
   <name>AsakusaSatellite Plugin</name>
+
+  <developers>
+    <developer>
+      <id>suer</id>
+      <name>Ryo SUETSUGU</name>
+      <email>suetsugu.r@gmail.com</email>
+    </developer>
+  </developers>
+  <scm>
+    <connection>scm:git:ssh://github.com/jenkinsci/asakusa-satellite-plugin.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/jenkinsci/asakusa-satellite-plugin.git</developerConnection>
+    <url>https://github.com/jenkinsci/asakusa-satellite-plugin</url>
+  </scm>
 
   <!-- get every artifact through maven.glassfish.org, which proxies all the artifacts that we need -->
   <repositories>
